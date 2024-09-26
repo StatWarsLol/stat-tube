@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizable Text</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Asimov, sans-serif;
+            background-color: #f4f4f4;
+        }
+        #customText {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="customText">Welcoming you to stat-tube.xyz! StatTube™ is coming! Stay Tuned!</div>
+
+    <script>
+        // Stat Wars was here :)
+        const customTextElement = document.getElementById('customText');
+        customTextElement.innerText = "Welcoming you to stat-tube.xyz! StatTube™ is coming! Stay Tuned!"; // Modify this line to change the text
+    </script>
+
+</body>
+</html>
