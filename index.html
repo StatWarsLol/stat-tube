@@ -1,9 +1,13 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StatTube™</title>
+
+
+    <link rel="icon" href="stm.png" type="image/png">
+
     <style>
         body {
             font-family: Asimov, sans-serif;
@@ -217,6 +221,7 @@
             margin-top: 10px;
         }
     </style>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -229,7 +234,7 @@
         <div class="icon-container">
             <img src="upload_symbol_thing.png" alt="Upload">
             <img src="graphs_lol.png" alt="Statistics" id="graphIcon" onclick="showStudio()">
-            <img id="profilePic" class="profile-pic" src="deafult pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
+            <img id="profilePic" class="profile-pic" src="default_pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
         </div>
     </div>
 
@@ -314,19 +319,12 @@
             }
 
             function showStudio() {
-                                document.getElementById('studioDashboard').style.display = 'flex';
+                document.getElementById('studioDashboard').style.display = 'flex';
                 createChart('Subscribers');
             }
 
             function closeStudio() {
                 document.getElementById('studioDashboard').style.display = 'none';
-            }
-
-            function selectTab(tab, type) {
-                const tabs = document.querySelectorAll('.stats-tabs div');
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                createChart(type);
             }
 
             function openSignInModal() {
@@ -338,24 +336,22 @@
             }
 
             function signIn() {
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const profilePicture = document.getElementById('profilePicture').files[0];
-
-                if (username && password && profilePicture) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        document.getElementById('profilePic').src = e.target.result;
-                        closeSignInModal();
-                        alert('Signed in successfully!');
-                    };
-                    reader.readAsDataURL(profilePicture);
-                } else {
-                    alert('Please fill in all fields.');
-                }
+                const profilePicInput = document.getElementById('profilePicture');
+                const profilePicUrl = URL.createObjectURL(profilePicInput.files[0]);
+                const profilePicElement = document.getElementById('profilePic');
+                profilePicElement.src = profilePicUrl;
+                closeSignInModal();
             }
+
+            function selectTab(tab, type) {
+                document.querySelector('.stats-tabs .active').classList.remove('active');
+                tab.classList.add('active');
+                createChart(type);
+            }
+
         </script>
+
     </div>
+
 </body>
 </html>
-
