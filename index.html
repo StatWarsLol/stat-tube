@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StatTube™</title>
 
-
     <link rel="icon" href="stm.png" type="image/png">
 
     <style>
@@ -284,7 +283,6 @@
         </div>
 
         <script>
-            
             let chart;
             const ctx = document.getElementById('statsGraph').getContext('2d');
 
@@ -318,6 +316,13 @@
                 });
             }
 
+            function selectTab(element, type) {
+                document.querySelector('.stats-tabs .active').classList.remove('active');
+                element.classList.add('active');
+                document.getElementById('statsTitle').textContent = `Your ${type} Performance`;
+                createChart(type);
+            }
+
             function showStudio() {
                 document.getElementById('studioDashboard').style.display = 'flex';
                 createChart('Subscribers');
@@ -336,22 +341,42 @@
             }
 
             function signIn() {
-                const profilePicInput = document.getElementById('profilePicture');
-                const profilePicUrl = URL.createObjectURL(profilePicInput.files[0]);
-                const profilePicElement = document.getElementById('profilePic');
-                profilePicElement.src = profilePicUrl;
-                closeSignInModal();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const profilePicture = document.getElementById('profilePicture').files[0];
+
+                if (!username || !password || !profilePicture) {
+                    alert("Please fill in all fields.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    const profilePicURL = reader.result;
+
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('profilePicture', profilePicURL);
+
+                    closeSignInModal();
+                    updateProfileUI();
+                };
+                reader.readAsDataURL(profilePicture);
             }
 
-            function selectTab(tab, type) {
-                document.querySelector('.stats-tabs .active').classList.remove('active');
-                tab.classList.add('active');
-                createChart(type);
+            function updateProfileUI() {
+                const username = localStorage.getItem('username');
+                const profilePicURL = localStorage.getItem('profilePicture');
+
+                if (username && profilePicURL) {
+                    document.getElementById('profilePic').src = profilePicURL;
+                }
             }
 
+            
+            window.onload = function() {
+                updateProfileUI();
+            };
         </script>
-
     </div>
-
 </body>
 </html>
