@@ -6,7 +6,7 @@
     <title>StatTube™</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Asimov, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
@@ -27,12 +27,40 @@
             color: #1a9af7;
         }
 
+        .logo span {
+            color: #22e500;
+        }
+
+        .icon-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-container img {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
         .content {
             max-width: 1200px;
             margin: 50px auto;
             text-align: left;
         }
 
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        
         .video-container {
             display: flex;
             flex-wrap: wrap;
@@ -47,7 +75,6 @@
             width: 200px;
             height: auto;
             display: inline-block;
-            cursor: pointer;
             transition: background-color 0.3s;
             position: relative;
         }
@@ -68,37 +95,284 @@
             border-radius: 8px;
         }
 
-        #videoPlayer {
+        
+        .studio-dashboard {
             display: none;
-            margin-top: 20px;
-            max-width: 80%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
-        video {
+        .studio-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 800px;
             width: 100%;
-            height: auto;
+            position: relative;
+        }
+
+        .studio-content h2 {
+            color: #1a9af7;
+            margin-top: 0;
+        }
+
+        .studio-content .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .studio-content .stats-tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stats-tabs div {
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #777;
+            transition: background-color 0.3s;
+        }
+
+        .stats-tabs .active {
+            background-color: #ff5e5e;
+            color: white;
+        }
+
+        .stats-content {
+            margin-top: 20px;
             border-radius: 15px;
+            padding: 20px;
+            background: linear-gradient(to bottom, #fce8e8, white);
+        }
+
+        .stats-content canvas {
+            width: 100%;
+            height: 300px;
+        }
+
+        
+        .signin-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .signin-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .signin-content input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 90%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .signin-content button {
+            padding: 10px 20px;
+            background-color: #1a9af7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .signin-content h2 {
+            color: #1a9af7;
+            margin-bottom: 20px;
+        }
+
+        .signin-content .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .signin-content label {
+            display: block;
+            text-align: left;
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
+    
     <div class="header">
-        <div class="logo">StatTube™</div>
+        <div class="logo">StatTube™ <span></span></div>
+
+        
+        <div class="icon-container">
+            <img src="upload symbol thing.png" alt="Upload">
+            <img src="graphs lol.png" alt="Statistics" id="graphIcon" onclick="showStudio()">
+            <img id="profilePic" class="profile-pic" src="deafult_pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
+        </div>
     </div>
 
+    
     <div class="content">
         <h2>Recommended for you</h2>
 
+        
         <div class="video-container">
-            <div id="videoCard" class="video-card">
-                <p>uhhhh welcome guys...</p>
+            
+            <div class="video-card">
+                <p>welcome people.</p>
+                <p>StatTube Official</p>
+            </div>
+
+
+   
+    <div id="studioDashboard" class="studio-dashboard">
+        <div class="studio-content">
+            <span class="close-btn" onclick="closeStudio()">✖</span>
+            <h2 id="statsTitle">Your Performance</h2>
+
+            <div class="stats-tabs">
+                <div class="active" onclick="selectTab(this, 'Subscribers')">Subscribers</div>
+                <div onclick="selectTab(this, 'Views')">Views</div>
+                <div onclick="selectTab(this, 'Likes')">Likes</div>
+                <div onclick="selectTab(this, 'Comments')">Comments</div>
+            </div>
+
+            <div class="stats-content">
+                <canvas id="statsGraph"></canvas>
             </div>
         </div>
+    </div>
+
+    
+    <div id="signinModal" class="signin-modal">
+        <div class="signin-content">
+            <span class="close-btn" onclick="closeSignInModal()">✖</span>
+            <h2>Sign Up for StatTube™</h2>
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter your username" required>
+            
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+
+            <label for="profilePicture">Profile Picture</label>
+            <input type="file" id="profilePicture" accept="image/*" required>
+
+            <button onclick="signIn()">Sign In</button>
+        </div>
+    </div>
 
     <script>
-        // No loadVideo function needed, since the card isn't clickable anymore
-    </script>
+                
+        function showStudio() {
+            document.getElementById('studioDashboard').style.display = 'flex';
+            updateGraph('Subscribers'); 
+        }
 
+        
+        function closeStudio() {
+            document.getElementById('studioDashboard').style.display = 'none';
+        }
+
+        
+        function selectTab(tab, type) {
+            const tabs = document.querySelectorAll('.stats-tabs div');
+            tabs.forEach(t => {
+                t.classList.remove('active');
+            });
+            tab.classList.add('active');
+            document.getElementById('statsTitle').innerText = `Your Performance (${type})`;
+            updateGraph(type);
+        }
+
+        
+        function updateGraph(type) {
+            const ctx = document.getElementById('statsGraph').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = 'lightgray';
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+            ctx.fillStyle = 'red'; 
+            ctx.beginPath();
+            ctx.moveTo(0, ctx.canvas.height);
+            ctx.lineTo(ctx.canvas.width, ctx.canvas.height - 0); 
+            ctx.stroke();
+
+            ctx.font = '16px Arial';
+            ctx.fillStyle = 'black';
+            ctx.fillText(`Current ${type}: 0`, 10, 20); 
+        }
+
+        
+        function openSignInModal() {
+            document.getElementById('signinModal').style.display = 'flex';
+        }
+
+        
+        function closeSignInModal() {
+            document.getElementById('signinModal').style.display = 'none';
+        }
+
+        
+        function signIn() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const profilePictureInput = document.getElementById('profilePicture');
+            if (username && password && profilePictureInput.files.length > 0) {
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const profilePicture = e.target.result; 
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('password', password);
+                    localStorage.setItem('profilePicture', profilePicture);
+                    document.getElementById('profilePic').src = profilePicture; 
+                    closeSignInModal();
+                }
+                reader.readAsDataURL(profilePictureInput.files[0]);
+            } else {
+                alert('Please fill all fields and select a profile picture.');
+            }
+        }
+
+        
+        window.onload = function() {
+            const savedUsername = localStorage.getItem('username');
+            const savedProfilePicture = localStorage.getItem('profilePicture');
+            if (savedUsername && savedProfilePicture) {
+                document.getElementById('profilePic').src = savedProfilePicture; // Load saved profile picture
+            }
+        };
+    </script>
 </body>
 </html>
+
