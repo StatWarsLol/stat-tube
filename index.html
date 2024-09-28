@@ -21,14 +21,8 @@
             border-bottom: 1px solid #ccc;
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1a9af7;
-        }
-
-        .logo span {
-            color: #22e500;
+        .logo img {
+            height: 30px; 
         }
 
         .icon-container {
@@ -60,7 +54,6 @@
             margin-bottom: 20px;
         }
 
-        
         .video-container {
             display: flex;
             flex-wrap: wrap;
@@ -95,7 +88,6 @@
             border-radius: 8px;
         }
 
-        
         .studio-dashboard {
             display: none;
             position: fixed;
@@ -164,7 +156,6 @@
             height: 300px;
         }
 
-        
         .signin-modal {
             display: none;
             position: fixed;
@@ -226,153 +217,145 @@
             margin-top: 10px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    
     <div class="header">
-        <div class="logo">StatTube™ <span></span></div>
-
+        <div class="logo">
+            <img src="StatTube Logo.png" alt="StatTube Logo"> 
+        </div>
         
         <div class="icon-container">
-            <img src="upload_symbol_thing.png" alt="Upload">
-            <img src="graphs_lol.png" alt="Statistics" id="graphIcon" onclick="showStudio()">
-            <img id="profilePic" class="profile-pic" src="deafult pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
+            <img src="upload symbol thing.png" alt="Upload">
+            <img src="graphs lol.png" alt="Statistics" id="graphIcon" onclick="showStudio()">
+            <img id="profilePic" class="profile-pic" src="deafult_pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
         </div>
     </div>
 
-    
     <div class="content">
         <h2>Recommended for you</h2>
 
-        
         <div class="video-container">
-            
             <div class="video-card">
                 <p>welcome people.</p>
                 <p>StatTube Official</p>
             </div>
+        </div>
 
+        <div id="studioDashboard" class="studio-dashboard">
+            <div class="studio-content">
+                <span class="close-btn" onclick="closeStudio()">✖</span>
+                <h2 id="statsTitle">Your Performance</h2>
 
-   
-    <div id="studioDashboard" class="studio-dashboard">
-        <div class="studio-content">
-            <span class="close-btn" onclick="closeStudio()">✖</span>
-            <h2 id="statsTitle">Your Performance</h2>
+                <div class="stats-tabs">
+                    <div class="active" onclick="selectTab(this, 'Subscribers')">Subscribers</div>
+                    <div onclick="selectTab(this, 'Views')">Views</div>
+                    <div onclick="selectTab(this, 'Likes')">Likes</div>
+                    <div onclick="selectTab(this, 'Comments')">Comments</div>
+                </div>
 
-            <div class="stats-tabs">
-                <div class="active" onclick="selectTab(this, 'Subscribers')">Subscribers</div>
-                <div onclick="selectTab(this, 'Views')">Views</div>
-                <div onclick="selectTab(this, 'Likes')">Likes</div>
-                <div onclick="selectTab(this, 'Comments')">Comments</div>
-            </div>
-
-            <div class="stats-content">
-                <canvas id="statsGraph"></canvas>
+                <div class="stats-content">
+                    <canvas id="statsGraph"></canvas>
+                </div>
             </div>
         </div>
-    </div>
 
-    
-    <div id="signinModal" class="signin-modal">
-        <div class="signin-content">
-            <span class="close-btn" onclick="closeSignInModal()">✖</span>
-            <h2>Sign Up for StatTube™</h2>
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter your username" required>
+        <div id="signinModal" class="signin-modal">
+            <div class="signin-content">
+                <span class="close-btn" onclick="closeSignInModal()">✖</span>
+                <h2>Sign Up for StatTube™</h2>
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username" required>
+                
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" id="profilePicture" accept="image/*" required>
+
+                <button onclick="signIn()">Sign In</button>
+            </div>
+        </div>
+
+        <script>
             
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password" required>
-
-            <label for="profilePicture">Profile Picture</label>
-            <input type="file" id="profilePicture" accept="image/*" required>
-
-            <button onclick="signIn()">Sign In</button>
-        </div>
-    </div>
-
-    <script>
-                
-        function showStudio() {
-            document.getElementById('studioDashboard').style.display = 'flex';
-            updateGraph('Subscribers'); 
-        }
-
-        
-        function closeStudio() {
-            document.getElementById('studioDashboard').style.display = 'none';
-        }
-
-        
-        function selectTab(tab, type) {
-            const tabs = document.querySelectorAll('.stats-tabs div');
-            tabs.forEach(t => {
-                t.classList.remove('active');
-            });
-            tab.classList.add('active');
-            document.getElementById('statsTitle').innerText = `Your Performance (${type})`;
-            updateGraph(type);
-        }
-
-        
-        function updateGraph(type) {
+            let chart;
             const ctx = document.getElementById('statsGraph').getContext('2d');
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            ctx.fillStyle = 'lightgray';
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-            ctx.fillStyle = 'red'; 
-            ctx.beginPath();
-            ctx.moveTo(0, ctx.canvas.height);
-            ctx.lineTo(ctx.canvas.width, ctx.canvas.height - 0); 
-            ctx.stroke();
-
-            ctx.font = '16px Arial';
-            ctx.fillStyle = 'black';
-            ctx.fillText(`Current ${type}: 0`, 10, 20); 
-        }
-
-        
-        function openSignInModal() {
-            document.getElementById('signinModal').style.display = 'flex';
-        }
-
-        
-        function closeSignInModal() {
-            document.getElementById('signinModal').style.display = 'none';
-        }
-
-        
-        function signIn() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const profilePictureInput = document.getElementById('profilePicture');
-            if (username && password && profilePictureInput.files.length > 0) {
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const profilePicture = e.target.result; 
-                    localStorage.setItem('username', username);
-                    localStorage.setItem('password', password);
-                    localStorage.setItem('profilePicture', profilePicture);
-                    document.getElementById('profilePic').src = profilePicture; 
-                    closeSignInModal();
+            function createChart(type) {
+                if (chart) {
+                    chart.destroy();
                 }
-                reader.readAsDataURL(profilePictureInput.files[0]);
-            } else {
-                alert('Please fill all fields and select a profile picture.');
-            }
-        }
 
-        
-        window.onload = function() {
-            const savedUsername = localStorage.getItem('username');
-            const savedProfilePicture = localStorage.getItem('profilePicture');
-            if (savedUsername && savedProfilePicture) {
-                document.getElementById('profilePic').src = savedProfilePicture; // Load saved profile picture
+                const data = {
+                    labels: ['9/21', '9/22', '9/23', '9/24', '9/25', '9/26', '9/27'],
+                    datasets: [{
+                        label: type,
+                        data: Array.from({ length: 7 }, () => Math.floor(Math.random() * 0)),
+                        backgroundColor: 'rgba(255, 94, 94, 0.6)',
+                        borderColor: 'rgba(255, 94, 94, 1)',
+                        borderWidth: 2
+                    }]
+                };
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
             }
-        };
-    </script>
+
+            function showStudio() {
+                                document.getElementById('studioDashboard').style.display = 'flex';
+                createChart('Subscribers');
+            }
+
+            function closeStudio() {
+                document.getElementById('studioDashboard').style.display = 'none';
+            }
+
+            function selectTab(tab, type) {
+                const tabs = document.querySelectorAll('.stats-tabs div');
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                createChart(type);
+            }
+
+            function openSignInModal() {
+                document.getElementById('signinModal').style.display = 'flex';
+            }
+
+            function closeSignInModal() {
+                document.getElementById('signinModal').style.display = 'none';
+            }
+
+            function signIn() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const profilePicture = document.getElementById('profilePicture').files[0];
+
+                if (username && password && profilePicture) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById('profilePic').src = e.target.result;
+                        closeSignInModal();
+                        alert('Signed in successfully!');
+                    };
+                    reader.readAsDataURL(profilePicture);
+                } else {
+                    alert('Please fill in all fields.');
+                }
+            }
+        </script>
+    </div>
 </body>
 </html>
 
