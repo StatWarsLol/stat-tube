@@ -22,7 +22,6 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #ccc;
-            position: relative;
         }
 
         .logo img {
@@ -33,7 +32,6 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            position: relative;
         }
 
         .icon-container img {
@@ -49,42 +47,10 @@
             object-fit: cover;
         }
 
-        /* Upload Commands Styles */
-        .upload-commands {
-            display: none;
-            position: absolute;
-            top: 70px;
-            right: 20px;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .upload-commands button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #1a9af7;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .upload-commands button:hover {
-            background-color: #155d9c;
-        }
-
         .content {
             max-width: 1200px;
             margin: 50px auto;
             text-align: left;
-            padding: 0 20px;
         }
 
         h2 {
@@ -125,35 +91,6 @@
             border-radius: 8px;
         }
 
-        /* Counters Styles */
-        .counters {
-            margin-top: 30px;
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .counter {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex: 1 1 200px;
-            text-align: center;
-        }
-
-        .counter h3 {
-            margin-bottom: 10px;
-            color: #1a9af7;
-        }
-
-        .counter .odometer {
-            font-size: 36px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        /* Studio Dashboard Styles */
         .studio-dashboard {
             display: none;
             position: fixed;
@@ -222,7 +159,6 @@
             height: 300px;
         }
 
-        /* Sign-In Modal Styles */
         .signin-modal {
             display: none;
             position: fixed;
@@ -231,7 +167,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
+            z-index: 999;
             justify-content: center;
             align-items: center;
         }
@@ -261,7 +197,6 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
         }
 
         .signin-content h2 {
@@ -284,30 +219,9 @@
             color: #555;
             margin-top: 10px;
         }
-
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            .studio-content {
-                padding: 20px;
-            }
-
-            .upload-commands {
-                right: 10px;
-                top: 60px;
-            }
-
-            .counters {
-                flex-direction: column;
-                gap: 20px;
-            }
-        }
     </style>
 
-    <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Include Odometer.js for animated counters -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css" integrity="sha512-owAm2LUwRLqPwvqgSC0GqzYq4smvFYrZBGiQ2nEfb2LOFzFMokhGh4x96WZEOEfN3RAoBL9GDFOWN42Bd/XJpg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js" integrity="sha512-NXUgLBOsEH3vLvY2r+RhB1ckB8VFws/++81o4rP15qm1zOM4IZB3XnVbMUubS4uXINIXt63bN86C6MUb2OciwQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 
@@ -317,19 +231,10 @@
         </div>
         
         <div class="icon-container">
-            <img src="upload_symbol_thing.png" alt="Upload" id="uploadIcon" onclick="toggleUploadCommands()">
+            <img src="upload_symbol_thing.png" alt="Upload">
             <img src="graphs_lol.png" alt="Statistics" id="graphIcon" onclick="showStudio()">
-            <img id="profilePic" class="profile-pic" src="default_pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
+            <img id="profilePic" class="profile-pic" src="deafult pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
         </div>
-    </div>
-
-    <!-- Upload Commands Container -->
-    <div id="uploadCommands" class="upload-commands">
-        <button onclick="sendCommand('!video')">!video</button>
-        <button onclick="sendCommand('!short')">!short</button>
-        <button onclick="sendCommand('!livestream')">!livestream</button>
-        <button onclick="sendCommand('!post')">!post</button>
-        <button onclick="sendCommand('!stream')">!stream</button>
     </div>
 
     <div class="content">
@@ -337,25 +242,8 @@
 
         <div class="video-container">
             <div class="video-card">
-                <p>Welcome people.</p>
+                <p>welcome people.</p>
                 <p>StatTube Official</p>
-            </div>
-            <!-- Add more video cards as needed -->
-        </div>
-
-        <!-- Counters Display -->
-        <div class="counters">
-            <div class="counter">
-                <h3>Subscribers</h3>
-                <div class="odometer" id="subscriberCount">0</div>
-            </div>
-            <div class="counter">
-                <h3>Views</h3>
-                <div class="odometer" id="viewCount">0</div>
-            </div>
-            <div class="counter">
-                <h3>Likes</h3>
-                <div class="odometer" id="likeCount">0</div>
             </div>
         </div>
 
@@ -393,385 +281,102 @@
                 <button onclick="signIn()">Sign In</button>
             </div>
         </div>
-    </div>
 
-    <!-- Main JavaScript -->
-    <script>
-        // Initialize variables
-        let chart;
-        const ctx = document.getElementById('statsGraph').getContext('2d');
+        <script>
+            let chart;
+            const ctx = document.getElementById('statsGraph').getContext('2d');
 
-        // Subscriber Data Configuration
-        let subscriberCount = 0;
-        let viewCount = 0;
-        let likeCount = 0;
-        let subscriberData = []; // To store subscriber data for the graph
-        const maxDataPoints = 7; // Number of data points on the graph
+            function createChart(type) {
+                if (chart) {
+                    chart.destroy();
+                }
 
-        // Define subscriber, view, and like gain ranges for each command
-        const commandGains = {
-            '!video': { 
-                sub: { min: 50, max: 150 }, 
-                view: { min: 10000, max: 100000 }, 
-                like: { min: 200, max: 500 }
-            },
-            '!short': { 
-                sub: { min: 30, max: 100 }, 
-                view: { min: 6000, max: 80000 }, 
-                like: { min: 100, max: 300 }
-            },
-            '!livestream': { 
-                sub: { min: 100, max: 250 }, 
-                view: { min: 100000, max: 500000 }, 
-                like: { min: 300, max: 800 }
-            },
-            '!post': { 
-                sub: { min: 20, max: 80 }, 
-                view: { min: 5000, max: 70000 }, 
-                like: { min: 50, max: 200 }
-            },
-            '!stream': { 
-                sub: { min: 70, max: 200 }, 
-                view: { min: 70000, max: 400000 }, 
-                like: { min: 150, max: 600 }
-            }
-        };
-
-        // Function to create or update the chart
-        function createChart(type) {
-            if (chart) {
-                chart.destroy();
-            }
-
-            let labels = [];
-            let dataPoints = [];
-
-            // Generate labels based on data points
-            if (type === 'Subscribers') {
-                labels = subscriberData.map((_, index) => `Day ${index + 1}`);
-                dataPoints = subscriberData;
-            } else if (type === 'Views') {
-                labels = subscriberData.map((_, index) => `Day ${index + 1}`);
-                dataPoints = viewData;
-            } else if (type === 'Likes') {
-                labels = subscriberData.map((_, index) => `Day ${index + 1}`);
-                dataPoints = likeData;
-            } else {
-                // Placeholder for other types like Comments
-                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
-                dataPoints = Array.from({ length: 7 }, () => Math.floor(Math.random() * 100));
-            }
-
-            let datasetConfig = {};
-            if (type === 'Subscribers') {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(255, 94, 94, 0.6)',
-                    borderColor: 'rgba(255, 94, 94, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
+                const data = {
+                    labels: ['9/21', '9/22', '9/23', '9/24', '9/25', '9/26', '9/27'],
+                    datasets: [{
+                        label: type,
+                        data: Array.from({ length: 7 }, () => Math.floor(Math.random() * 0)),
+                        backgroundColor: 'rgba(255, 94, 94, 0.6)',
+                        borderColor: 'rgba(255, 94, 94, 1)',
+                        borderWidth: 2
+                    }]
                 };
-            } else if (type === 'Views') {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(94, 255, 94, 0.6)',
-                    borderColor: 'rgba(94, 255, 94, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                };
-            } else if (type === 'Likes') {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(94, 94, 255, 0.6)',
-                    borderColor: 'rgba(94, 94, 255, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                };
-            } else {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(200, 200, 200, 0.6)',
-                    borderColor: 'rgba(200, 200, 200, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                };
-            }
 
-            const data = {
-                labels: labels,
-                datasets: [datasetConfig]
-            };
-
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: data,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            labels: {
-                                color: '#333'
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#555'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#555'
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
                             }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        // Function to select and activate a tab
-        function selectTab(element, type) {
-            document.querySelector('.stats-tabs .active').classList.remove('active');
-            element.classList.add('active');
-            document.getElementById('statsTitle').textContent = `Your ${type} Performance`;
-
-            if (type === 'Subscribers') {
-                createChart('Subscribers');
-            } else if (type === 'Views') {
-                createChart('Views');
-            } else if (type === 'Likes') {
-                createChart('Likes');
-            } else {
-                // Handle other types like Comments
+            function selectTab(element, type) {
+                document.querySelector('.stats-tabs .active').classList.remove('active');
+                element.classList.add('active');
+                document.getElementById('statsTitle').textContent = `Your ${type} Performance`;
                 createChart(type);
             }
-        }
 
-        // Function to show the studio dashboard
-        function showStudio() {
-            document.getElementById('studioDashboard').style.display = 'flex';
-            createChart('Subscribers');
-        }
-
-        // Function to close the studio dashboard
-        function closeStudio() {
-            document.getElementById('studioDashboard').style.display = 'none';
-        }
-
-        // Function to open the sign-in modal
-        function openSignInModal() {
-            document.getElementById('signinModal').style.display = 'flex';
-        }
-
-        // Function to close the sign-in modal
-        function closeSignInModal() {
-            document.getElementById('signinModal').style.display = 'none';
-        }
-
-        // Function to handle user sign-in
-        function signIn() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const profilePicture = document.getElementById('profilePicture').files[0];
-
-            if (!username || !password || !profilePicture) {
-                alert("Please fill in all fields.");
-                return;
+            function showStudio() {
+                document.getElementById('studioDashboard').style.display = 'flex';
+                createChart('Subscribers');
             }
 
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                const profilePicURL = reader.result;
+            function closeStudio() {
+                document.getElementById('studioDashboard').style.display = 'none';
+            }
 
-                // Retrieve existing users from localStorage
-                let users = JSON.parse(localStorage.getItem('users')) || {};
+            function openSignInModal() {
+                document.getElementById('signinModal').style.display = 'flex';
+            }
 
-                if (users[username]) {
-                    alert("Username already exists. Please choose a different username.");
+            function closeSignInModal() {
+                document.getElementById('signinModal').style.display = 'none';
+            }
+
+            function signIn() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const profilePicture = document.getElementById('profilePicture').files[0];
+
+                if (!username || !password || !profilePicture) {
+                    alert("Please fill in all fields.");
                     return;
                 }
 
-                // Store user data in localStorage
-                const userData = {
-                    username: username,
-                    password: password, // Note: Storing passwords in plain text is insecure. Use hashing in production.
-                    profilePicture: profilePicURL,
-                    subscriberCount: 0,
-                    viewCount: 0,
-                    likeCount: 0,
-                    subscriberData: [0],
-                    viewData: [0],
-                    likeData: [0]
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    const profilePicURL = reader.result;
+
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('profilePicture', profilePicURL);
+
+                    closeSignInModal();
+                    updateProfileUI();
                 };
-                users[username] = userData;
-                localStorage.setItem('users', JSON.stringify(users));
+                reader.readAsDataURL(profilePicture);
+            }
 
-                // Set the current user
-                localStorage.setItem('currentUser', username);
+            function updateProfileUI() {
+                const username = localStorage.getItem('username');
+                const profilePicURL = localStorage.getItem('profilePicture');
 
-                closeSignInModal();
+                if (username && profilePicURL) {
+                    document.getElementById('profilePic').src = profilePicURL;
+                }
+            }
+
+            
+            window.onload = function() {
                 updateProfileUI();
-                updateCountersUI();
             };
-            reader.readAsDataURL(profilePicture);
-        }
-
-        // Function to handle user login (not implemented)
-        // You can expand this functionality as needed.
-
-        // Function to update the profile UI after sign-in
-        function updateProfileUI() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                const users = JSON.parse(localStorage.getItem('users'));
-                const userData = users[currentUser];
-                if (userData && userData.profilePicture) {
-                    document.getElementById('profilePic').src = userData.profilePicture;
-                }
-            }
-        }
-
-        // Function to update the counters
-        function updateCountersUI() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                const users = JSON.parse(localStorage.getItem('users'));
-                const userData = users[currentUser];
-                if (userData) {
-                    subscriberCount = userData.subscriberCount;
-                    viewCount = userData.viewCount;
-                    likeCount = userData.likeCount;
-                    subscriberData = userData.subscriberData;
-                    viewData = userData.viewData;
-                    likeData = userData.likeData;
-
-                    // Update the odometer
-                    odometerUpdate('subscriberCount', subscriberCount);
-                    odometerUpdate('viewCount', viewCount);
-                    odometerUpdate('likeCount', likeCount);
-
-                    // Initialize the chart
-                    createChart('Subscribers');
-                }
-            } else {
-                // If no user is signed in, reset to default
-                subscriberCount = 0;
-                viewCount = 0;
-                likeCount = 0;
-                subscriberData = [0];
-                viewData = [0];
-                likeData = [0];
-                odometerUpdate('subscriberCount', subscriberCount);
-                odometerUpdate('viewCount', viewCount);
-                odometerUpdate('likeCount', likeCount);
-                createChart('Subscribers');
-            }
-        }
-
-        // Function to toggle the visibility of upload commands
-        function toggleUploadCommands() {
-            const uploadCommands = document.getElementById('uploadCommands');
-            if (uploadCommands.style.display === 'none' || uploadCommands.style.display === '') {
-                uploadCommands.style.display = 'block';
-            } else {
-                uploadCommands.style.display = 'none';
-            }
-        }
-
-        // Function to send a command and handle gains
-        function sendCommand(command) {
-            const currentUser = localStorage.getItem('currentUser');
-            if (!currentUser) {
-                alert("Please sign in to perform this action.");
-                return;
-            }
-
-            const users = JSON.parse(localStorage.getItem('users'));
-            const userData = users[currentUser];
-
-            if (!commandGains[command]) {
-                alert("Invalid command.");
-                return;
-            }
-
-            // Calculate random gains within the specified ranges
-            const subGain = getRandomInt(commandGains[command].sub.min, commandGains[command].sub.max);
-            const viewGain = getRandomInt(commandGains[command].view.min, commandGains[command].view.max);
-            const likeGain = getRandomInt(commandGains[command].like.min, commandGains[command].like.max);
-
-            // Update counts
-            userData.subscriberCount += subGain;
-            userData.viewCount += viewGain;
-            userData.likeCount += likeGain;
-
-            // Update data histories
-            if (userData.subscriberData.length >= maxDataPoints) {
-                userData.subscriberData.shift(); // Remove oldest data point
-            }
-            userData.subscriberData.push(userData.subscriberCount);
-
-            if (userData.viewData.length >= maxDataPoints) {
-                userData.viewData.shift();
-            }
-            userData.viewData.push(userData.viewCount);
-
-            if (userData.likeData.length >= maxDataPoints) {
-                userData.likeData.shift();
-            }
-            userData.likeData.push(userData.likeCount);
-
-            // Save back to localStorage
-            users[currentUser] = userData;
-            localStorage.setItem('users', JSON.stringify(users));
-
-            // Update the global variables
-            subscriberCount = userData.subscriberCount;
-            viewCount = userData.viewCount;
-            likeCount = userData.likeCount;
-            subscriberData = userData.subscriberData;
-            viewData = userData.viewData;
-            likeData = userData.likeData;
-
-            // Update the UI
-            odometerUpdate('subscriberCount', subscriberCount);
-            odometerUpdate('viewCount', viewCount);
-            odometerUpdate('likeCount', likeCount);
-            createChart('Subscribers');
-
-            // Provide feedback to the user
-            alert(`Command "${command}" executed!\nGained ${subGain} subscribers, ${viewGain} views, and ${likeGain} likes.`);
-
-            // Hide upload commands after execution
-            toggleUploadCommands();
-        }
-
-        // Utility function to get a random integer between min and max (inclusive)
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        // Function to update the counters with Odometer animation
-        function odometerUpdate(elementId, newCount) {
-            const odometerElem = document.getElementById(elementId);
-            odometerElem.innerHTML = newCount;
-        }
-
-        // Initialize the application on page load
-        window.onload = function() {
-            updateProfileUI();
-            updateCountersUI();
-        };
-    </script>
+        </script>
+    </div>
 </body>
 </html>
