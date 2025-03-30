@@ -1,271 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StatTube</title>
-    <style>
-        body {
-            font-family: Roboto, sans-serif;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 20px;
-            justify-content: center;
-            background-color: #000000;
-        }
-
-.top-box {
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 75px;
-            background-color: #111111;
-            display: flex;
-            justify-content: center;
-            align-items: left;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 0;
-        }
-        .top-box img {
-            max-height: 100px;
-            width: auto;
-        }
-
-        .box {
-            width: 250px;
-            padding: 15px;
-            border: 1px solid #111111;
-            border-radius: 1px;
-            text-align: center;
-            background-color: #22212A;
-        }
-        .thumbnail {
-            width: 100%;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .username {
-            color: grey;
-            font-size: 14px;
-        }
-
-.sidebar {
-            position: fixed;
-            left: -250px;
-            top: 0;
-            width: 250px;
-            height: 100%;
-            background: #333;
-            padding-top: 20px;
-            transition: 0.3s;
-        }
-        .sidebar a, .sidebar button {
-            display: block;
-            color: white;
-            padding: 15px;
-            text-decoration: none;
-            background: none;
-            border: none;
-            text-align: left;
-            width: 100%;
-            cursor: pointer;
-        }
-        .sidebar a:hover, .sidebar button:hover {
-            background: #575757;
-        }
-        .toggle-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #333;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-        }
-
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StatTube</title>
+  <link rel="icon" href="stattube.png" type="image/x-icon" />
+  <style>
+    /* --- Global Styles --- */
+    body {
+      font-family: Roboto, sans-serif;
+      margin: 0;
+      padding-top: 75px; /* space for top header/taskbar */
+      background-color: #000;
+      color: #fff;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    /* --- Light Mode Overrides --- */
+    body.light-mode {
+      background-color: #fff;
+      color: #000;
+    }
+    body.light-mode .top-box {
+      background-color: #ddd;
+      box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+    }
+    body.light-mode .studio-taskbar {
+      background-color: #ccc;
+      box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    }
+    body.light-mode .sidebar {
+      background: #eee;
+    }
+    body.light-mode .modal-content {
+      background-color: #eee;
+      border: 1px solid #ccc;
+    }
+    /* Adjust toggle button in light mode */
+    body.light-mode .toggle-btn {
+      background: #eee;
+      color: #000;
+    }
+    /* Adjust video cards in light mode */
+    body.light-mode .box {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      color: #000;
+    }
+    /* --- Normal Header (Not Logged In) --- */
+    .top-box {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 75px;
+      background-color: #111;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+      z-index: 100;
+      transition: background-color 0.3s;
+    }
+    .top-box img {
+      max-height: 60px;
+      width: auto;
+    }
+    .top-box button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* --- Inverted Taskbar for Logged-In Users --- */
+    .studio-taskbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 75px;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      z-index: 200;
+      transition: background-color 0.3s;
+    }
+    .studio-taskbar .left-section a.logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .studio-taskbar .left-section a.logo img {
+      max-height: 60px;
+      width: auto;
+    }
+    /* --- Profile Container & Dropdown --- */
+    .profile-container {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    /* Removed the username span to hide channel name */
+    .profile-container img.profile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    /* Dropdown styling: toggled via click */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background-color: #333;
+      border: 1px solid #444;
+      border-radius: 4px;
+      width: 220px;
+      z-index: 300;
+    }
+    .dropdown-content a {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    .dropdown-content a:hover {
+      background-color: #575757;
+    }
+    .dropdown-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      display: inline-block;
+    }
+    /* --- Sidebar (Common) --- */
+    .sidebar {
+      position: fixed;
+      left: -250px;
+      top: 75px;
+      width: 250px;
+      height: calc(100% - 75px);
+      background: #333;
+      padding-top: 20px;
+      transition: 0.3s;
+      z-index: 150;
+    }
+    .sidebar a, .sidebar button {
+      display: block;
+      color: #fff;
+      padding: 15px;
+      text-decoration: none;
+      background: none;
+      border: none;
+      text-align: left;
+      width: 100%;
+      cursor: pointer;
+    }
+    .sidebar a:hover, .sidebar button:hover {
+      background: #575757;
+    }
+    .toggle-btn {
+      position: fixed;
+      top: 85px;
+      left: 20px;
+      background: #333;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      z-index: 250;
+    }
+    /* --- Video Boxes --- */
+    .box {
+      width: 250px;
+      padding: 15px;
+      border: 1px solid #111;
+      border-radius: 1px;
+      text-align: center;
+      background-color: #22212A;
+      margin: 10px;
+    }
+    .thumbnail {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .username {
+      color: grey;
+      font-size: 14px;
+    }
+    /* --- Container for Videos --- */
+    .videos-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      padding-bottom: 40px;
+    }
+    /* --- Modal Styles --- */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 500;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+      transition: background-color 0.3s;
+    }
+    .modal-content {
+      background-color: #222;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #444;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 4px;
+      transition: background-color 0.3s, border 0.3s;
+    }
+    .modal select, .modal input {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: none;
+    }
+    .modal button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+    .modal .blue-button {
+      background: #007bff;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
+  <!-- Normal header (shown if not logged in) -->
+  <div id="normalHeader" class="top-box">
+    <img src="stattube.png" alt="StatTube Logo" />
+    <!-- Sign In button -->
+    <button onclick="openSignInModal()">Sign In</button>
+  </div>
 
-<div class="top-box">
-        <img src="stattube.png" alt=" ">
+  <!-- Inverted taskbar (shown if logged in) -->
+  <div id="studioTaskbar" class="studio-taskbar" style="display: none;">
+    <div class="left-section">
+      <a href="https://studio.stattube.xyz" class="logo">
+        <img src="stattube.png" alt="StatTube Logo" />
+      </a>
     </div>
-
-<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-    <div class="sidebar" id="sidebar">
-        <button onclick="toggleSidebar()">Close ×</button>
-        <a href="https://stat-tube.xyz/trends" target="_blank">Trends 🔥</a>
-        <a href="https://stat-tube.xyz/shorts" target="_blank">Shorts 🥳</a>
-        <a href="https://stat-tube.xyz/live" target="_blank">Lives (Streams) 🔴</a>
-        <a href="https://stat-tube.xyz/videos" target="_blank">Videos 📽️</a>
-        <a href="https://stat-tube.xyz/songs" target="_blank">Songs 🎶</a>
-        <a href="https://stat-tube.xyz/virals" target="_blank">Virals 📈🔥</a>
-        <a href="https://stat-tube.xyz/sponsored" target="_blank">Sponsored ✌️</a>
+    <div class="profile-container" id="profileContainer">
+      <!-- Removed channel name from here -->
+      <img id="taskbarProfilePic" class="profile-icon" src="default-pfp.jfif" alt="Profile" />
+      <div id="profileDropdown" class="dropdown-content">
+        <a href="https://studio.stattube.xyz">
+          <span class="dropdown-icon">
+            <!-- Home Icon SVG -->
+            <svg viewBox="0 0 24 24" fill="#fff" width="20" height="20">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </span>
+          <span>StatTube Studio</span>
+        </a>
+        <a id="yourChannelLink" href="channel.html?user=">
+          <span class="dropdown-icon">
+            <!-- Channel Icon SVG -->
+            <svg viewBox="0 0 24 24" fill="#fff" width="20" height="20">
+              <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+            </svg>
+          </span>
+          <span>Your Channel</span>
+        </a>
+        <a href="#" id="logoutButton">
+          <span class="dropdown-icon">
+            <!-- Logout Icon SVG -->
+            <svg viewBox="0 0 24 24" fill="#fff" width="20" height="20">
+              <path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8v2h8v14h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+            </svg>
+          </span>
+          <span>Log Out</span>
+        </a>
+        <a href="#" onclick="toggleTheme()">
+          <span class="dropdown-icon">
+            <!-- Theme Icon SVG -->
+            <svg viewBox="0 0 24 24" fill="#fff" width="20" height="20">
+              <path d="M12 3C9.243 3 7 5.243 7 8c0 2.757 2.243 5 5 5s5-2.243 5-5c0-2.757-2.243-5-5-5zm0 8c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3zM4 13v2h4v-2H4zm10 0v2h4v-2h-4zM4 17v2h4v-2H4zm10 0v2h4v-2h-4z"/>
+            </svg>
+          </span>
+          <span id="themeText">Switch Themes (Current: Dark Mode)</span>
+        </a>
+      </div>
     </div>
-    
-<script>
-    function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar.style.left === '0px') {
-                sidebar.style.left = '-250px';
-                sidebar.style.pointerEvents = 'none';
-            } else {
-                sidebar.style.left = '0px';
-                sidebar.style.pointerEvents = 'auto';
-            }
-        }
+  </div>
 
-document.addEventListener("DOMContentLoaded", function () {
-            const boxContainer = document.createElement("div");
-            boxContainer.style.marginTop = "16px";
-            document.body.appendChild(boxContainer);
-        });
-</script>
+  <!-- Sidebar (common) -->
+  <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+  <div id="sidebar" class="sidebar">
+    <button onclick="toggleSidebar()">Close ×</button>
+    <a href="https://stat-tube.xyz/trends" target="_blank">Trends 🔥</a>
+    <a href="https://stat-tube.xyz/shorts" target="_blank">Shorts 🥳</a>
+    <a href="https://stat-tube.xyz/live" target="_blank">Lives (Streams) 🔴</a>
+    <a href="https://stat-tube.xyz/videos" target="_blank">Videos 📽️</a>
+    <a href="https://stat-tube.xyz/songs" target="_blank">Songs 🎶</a>
+    <a href="https://stat-tube.xyz/virals" target="_blank">Virals 📈🔥</a>
+    <a href="https://stat-tube.xyz/sponsored" target="_blank">Sponsored ✌️</a>
+  </div>
 
+  <!-- Video boxes container -->
+  <div id="videosContainer" class="videos-container"></div>
 
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+  <!-- Modal for Sign In / Create Connection -->
+  <div id="signInModal" class="modal">
+    <div class="modal-content">
+      <h3>Select Your Channel</h3>
+      <select id="channelSelect">
+        <!-- Options loaded dynamically from Firebase -->
+      </select>
+      <button onclick="createConnection()">Create Connection</button>
+      <button class="blue-button" onclick="openActiveAccountsModal()">I already have a Studio Account</button>
+      <button onclick="closeSignInModal()">Cancel</button>
+    </div>
+  </div>
 
+  <!-- Modal for Active Accounts -->
+  <div id="activeAccountsModal" class="modal">
+    <div class="modal-content">
+      <h3>Select Active Account</h3>
+      <select id="activeAccountsSelect">
+        <!-- Active channels loaded dynamically -->
+      </select>
+      <input id="codeInput" type="text" placeholder="Enter connection code from chat" />
+      <button onclick="verifyStudioAccount()">Confirm</button>
+      <button onclick="closeActiveAccountsModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Firebase and connection logic -->
+  <script type="module">
+    // Import Firebase modules (version 10 as used in your Studio code)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getDatabase, ref, get, onValue, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+    /***** Firebase Configurations *****/
+    const firebaseConfigSubscribers = {
+      apiKey: "AIzaSyBKRIZDQ94sxPZ3da2D9Ucfoxv4q2ZZF5c",
+      authDomain: "are-you-kidding-me.firebaseapp.com",
+      databaseURL: "https://are-you-kidding-me-default-rtdb.firebaseio.com",
+      projectId: "are-you-kidding-me",
+      storageBucket: "are-you-kidding-me.firebasestorage.app",
+      messagingSenderId: "667397289088",
+      appId: "1:667397289088:web:183293a42669f3b28d2265",
+      measurementId: "G-04QEYGW21K"
+    };
     const firebaseConfigUploads = {
-        apiKey: "AIzaSyBQrXEOp6aNnKyaYYg3lN6HbUVKRpiSWvM",
-        authDomain: "uploads-stattube.firebaseapp.com",
-        databaseURL: "https://uploads-stattube-default-rtdb.firebaseio.com",
-        projectId: "uploads-stattube",
-        storageBucket: "uploads-stattube.firebasestorage.app",
-        messagingSenderId: "1058748358531",
-        appId: "1:1058748358531:web:606276b828d8eb9e2860b6",
-        measurementId: "G-ES4R12P4D4"
+      apiKey: "AIzaSyBQrXEOp6aNnKyaYYg3lN6HbUVKRpiSWvM",
+      authDomain: "uploads-stattube.firebaseapp.com",
+      databaseURL: "https://uploads-stattube-default-rtdb.firebaseio.com",
+      projectId: "uploads-stattube",
+      storageBucket: "uploads-stattube.firebasestorage.app",
+      messagingSenderId: "1058748358531",
+      appId: "1:1058748358531:web:606276b828d8eb9e2860b6",
+      measurementId: "G-ES4R12P4D4"
     };
 
-    const firebaseConfigSubscribers = {
-  apiKey: "AIzaSyBKRIZDQ94sxPZ3da2D9Ucfoxv4q2ZZF5c",
-  authDomain: "are-you-kidding-me.firebaseapp.com",
-  databaseURL: "https://are-you-kidding-me-default-rtdb.firebaseio.com",
-  projectId: "are-you-kidding-me",
-  storageBucket: "are-you-kidding-me.firebasestorage.app",
-  messagingSenderId: "667397289088",
-  appId: "1:667397289088:web:183293a42669f3b28d2265",
-  measurementId: "G-04QEYGW21K"
-};
+    // Initialize Firebase apps
+    const subscribersApp = initializeApp(firebaseConfigSubscribers, "subscribers");
+    const uploadsApp = initializeApp(firebaseConfigUploads, "uploads");
+    const dbSubscribers = getDatabase(subscribersApp);
+    const dbUploads = getDatabase(uploadsApp);
 
-    const appUploads = initializeApp(firebaseConfigUploads, "uploads");
-    const appSubscribers = initializeApp(firebaseConfigSubscribers, "subscribers");
+    /***** Connection/Login Functions *****/
+    function checkLogin() {
+      const loggedInChannel = localStorage.getItem("loggedInChannel");
+      if (loggedInChannel) {
+        checkConnection(loggedInChannel);
+      } else {
+        document.getElementById("normalHeader").style.display = "flex";
+        document.getElementById("studioTaskbar").style.display = "none";
+      }
+    }
 
-    const dbUploads = getDatabase(appUploads);
-    const dbSubscribers = getDatabase(appSubscribers);
+    function checkConnection(channel) {
+      const connectionRef = ref(dbSubscribers, `youtubeconnections/${channel}/isConnected`);
+      onValue(connectionRef, (snapshot) => {
+        if (snapshot.exists() && snapshot.val() === true) {
+          loadLoggedInUI(channel);
+        } else {
+          document.getElementById("normalHeader").style.display = "flex";
+          document.getElementById("studioTaskbar").style.display = "none";
+        }
+      });
+    }
+
+    async function loadLoggedInUI(channel) {
+      document.getElementById("normalHeader").style.display = "none";
+      document.getElementById("studioTaskbar").style.display = "flex";
+      document.getElementById("yourChannelLink").href = "channel.html?user=" + encodeURIComponent(channel);
+      const profileRef = ref(dbSubscribers, `subscribers/${channel}/profilePicture`);
+      const profileSnapshot = await get(profileRef);
+      if (profileSnapshot.exists()) {
+        const profilePicUrl = decodeURIComponent(profileSnapshot.val());
+        document.getElementById("taskbarProfilePic").src = profilePicUrl;
+      } else {
+        document.getElementById("taskbarProfilePic").src = "default-pfp.jfif";
+      }
+    }
+
+    async function createConnection() {
+      const channel = document.getElementById("channelSelect").value;
+      if (!channel) {
+        alert("Please select a channel");
+        return;
+      }
+      const connectionCode = generateCode();
+      const connectionRef = ref(dbSubscribers, `youtubeconnections/${channel}`);
+      await set(connectionRef, { connection: connectionCode, isConnected: false });
+      localStorage.setItem("connectionCode", connectionCode);
+      localStorage.setItem("loggedInChannel", channel);
+      alert(`Type !connect ${connectionCode} into the chat to log in!`);
+      closeSignInModal();
+      checkConnection(channel);
+    }
+
+    function generateCode() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    async function openSignInModal() {
+      console.log("Opening Sign In modal");
+      const modal = document.getElementById("signInModal");
+      modal.style.display = "block";
+      const dbRef = ref(dbSubscribers, 'subscribers');
+      const snapshot = await get(dbRef);
+      const dropdown = document.getElementById("channelSelect");
+      dropdown.innerHTML = "";
+      if (snapshot.exists()) {
+        const channels = snapshot.val();
+        Object.keys(channels).forEach(channel => {
+          const option = document.createElement('option');
+          option.value = channel;
+          option.textContent = channel;
+          dropdown.appendChild(option);
+        });
+      } else {
+        console.warn("No channels found in Firebase.");
+      }
+    }
+    function closeSignInModal() {
+      document.getElementById("signInModal").style.display = "none";
+    }
+
+    async function openActiveAccountsModal() {
+      closeSignInModal();
+      const modal = document.getElementById("activeAccountsModal");
+      modal.style.display = "block";
+      const activeDropdown = document.getElementById("activeAccountsSelect");
+      activeDropdown.innerHTML = "";
+      const connectionsRef = ref(dbSubscribers, 'youtubeconnections');
+      const snapshot = await get(connectionsRef);
+      if (snapshot.exists()) {
+        const connections = snapshot.val();
+        Object.keys(connections).forEach(channel => {
+          if (connections[channel].isConnected === true) {
+            const option = document.createElement('option');
+            option.value = channel;
+            option.textContent = channel;
+            activeDropdown.appendChild(option);
+          }
+        });
+      }
+    }
+    function closeActiveAccountsModal() {
+      document.getElementById("activeAccountsModal").style.display = "none";
+    }
+
+    async function verifyStudioAccount() {
+      const channel = document.getElementById("activeAccountsSelect").value;
+      const enteredCode = document.getElementById("codeInput").value.trim();
+      if (!channel || !enteredCode) {
+        alert("Please select an account and enter the connection code.");
+        return;
+      }
+      const connectionRef = ref(dbSubscribers, `youtubeconnections/${channel}`);
+      const snapshot = await get(connectionRef);
+      if (snapshot.exists()) {
+        const storedCode = snapshot.val().connection;
+        if (enteredCode === storedCode) {
+          await set(ref(dbSubscribers, `youtubeconnections/${channel}/isConnected`), true);
+          localStorage.setItem("loggedInChannel", channel);
+          alert("Connection verified. You are now signed in!");
+          closeActiveAccountsModal();
+          checkConnection(channel);
+        } else {
+          alert("Incorrect connection code. Please try again.");
+        }
+      } else {
+        alert("No connection found for that account.");
+      }
+    }
+
+    function logout() {
+      const channel = localStorage.getItem("loggedInChannel");
+      if (channel) {
+        set(ref(dbSubscribers, `youtubeconnections/${channel}`), null);
+      }
+      localStorage.removeItem("loggedInChannel");
+      localStorage.removeItem("connectionCode");
+      document.getElementById("normalHeader").style.display = "flex";
+      document.getElementById("studioTaskbar").style.display = "none";
+    }
+    document.getElementById("logoutButton").addEventListener("click", (e) => {
+      e.preventDefault();
+      logout();
+    });
 
     function timeAgo(timestamp) {
-        if (!timestamp) return "Unknown time"; 
-        const time = new Date(timestamp);
-        if (isNaN(time.getTime())) return "Invalid time"; 
-
-        const now = new Date();
-        const diff = Math.floor((now - time) / 1000);
-
-        if (diff < 60) return `${diff} seconds ago`;
-        const minutes = Math.floor(diff / 60);
-        if (minutes < 60) return `${minutes} minutes ago`;
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours} hours ago`;
-        const days = Math.floor(hours / 24);
-        return `${days} days ago`;
+      if (!timestamp) return "Unknown time";
+      const time = new Date(timestamp);
+      if (isNaN(time.getTime())) return "Invalid time";
+      const now = new Date();
+      const diff = Math.floor((now - time) / 1000);
+      if (diff < 60) return `${diff} seconds ago`;
+      const minutes = Math.floor(diff / 60);
+      if (minutes < 60) return `${minutes} minutes ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours} hours ago`;
+      const days = Math.floor(hours / 24);
+      return `${days} days ago`;
     }
-
+    function abbreviateViews(views) {
+      if (views === undefined || views === null) return "N/A";
+      if (views >= 1000000) return (views / 1000000).toFixed(1) + "M";
+      if (views >= 1000) return (views / 1000).toFixed(1) + "K";
+      return views.toString();
+    }
     function getRandomElements(arr, num) {
-        return arr.sort(() => 0.5 - Math.random()).slice(0, num);
+      return arr.sort(() => 0.5 - Math.random()).slice(0, num);
     }
-
     async function getProfilePicture(username) {
-    try {
+      try {
         const profileSnapshot = await get(ref(dbSubscribers, `subscribers/${username}/profilePicture`));
         if (profileSnapshot.exists()) {
-            // Get the profile picture URL and decode it
-            const profilePicUrl = profileSnapshot.val();
-            return decodeURIComponent(profilePicUrl);
+          return decodeURIComponent(profileSnapshot.val());
         } else {
-            return "default pfp.jfif";
+          return "default-pfp.jfif";
         }
-    } catch (error) {
-        console.error(`profile picture for ${username} could not be fetched:`, error);
-        return "default pfp.jfif";
+      } catch (error) {
+        console.error(`Profile picture for ${username} could not be fetched:`, error);
+        return "default-pfp.jfif";
+      }
     }
-}
-
-    function abbreviateViews(views) {
-    if (views === undefined || views === null) {
-        return "N/A"; // Return N/A if views are undefined or null
-    }
-
-    if (views >= 1000000) {
-        return (views / 1000000).toFixed(1) + "M";  // Convert to millions
-    } else if (views >= 1000) {
-        return (views / 1000).toFixed(1) + "K";   // Convert to thousands
-    } else {
-        return views.toString();  // No abbreviation needed
-    }
-}
-
-async function fetchData() {
-    try {
+    async function fetchData() {
+      try {
         const snapshot = await get(ref(dbUploads, "uploads"));
         if (!snapshot.exists()) {
-            console.log("no data found");
-            return;
+          console.log("No data found");
+          return;
         }
-
         let videos = [];
         snapshot.forEach(userSnapshot => {
-            const username = userSnapshot.key;
-            userSnapshot.forEach(videoSnapshot => {
-                const videoTitle = videoSnapshot.key;
-                const videoData = videoSnapshot.val();
-
-                if (videoData.command === "!trend" && videoData.timestamp) {
-                    videos.push({
-                        title: videoTitle,
-                        username: username,
-                        timestamp: videoData.timestamp,
-                        views: videoData.views || 0 // Set default to 0 if views are missing
-                    });
-                }
-            });
+          const username = userSnapshot.key;
+          userSnapshot.forEach(videoSnapshot => {
+            const videoTitle = videoSnapshot.key;
+            const videoData = videoSnapshot.val();
+            if (videoData.command === "!trend" && videoData.timestamp) {
+              videos.push({
+                title: videoTitle,
+                username: username,
+                timestamp: videoData.timestamp,
+                views: videoData.views || 0
+              });
+            }
+          });
         });
-
         if (videos.length === 0) {
-            console.log("no videos available");
-            return;
+          console.log("No videos available");
+          return;
         }
-
         const selectedVideos = getRandomElements(videos, Math.min(102, videos.length));
-
+        const videosContainer = document.getElementById("videosContainer");
+        videosContainer.innerHTML = "";
         for (const video of selectedVideos) {
-            const profilePic = await getProfilePicture(video.username);
-
-            const div = document.createElement("div");
-            div.classList.add("box");
-            div.innerHTML = `
-                <img src="thumbnail.png" alt=" " class="thumbnail">
-                <strong style="color: white; display: block; text-align: left; margin-top: 5px;">${video.title}</strong>
-                <div style="color: white; font-weight: normal; text-align: left; margin-top: 5px;">
-                    Views: ${abbreviateViews(video.views)}  <!-- Display the abbreviated view count here -->
-                </div>
-                <div style="display: flex; align-items: center; margin-top: 5px;">
-                    <img src="${profilePic}" alt=" " style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;">
-                    <span class='username' style="text-align: left;">${video.username} • ${timeAgo(video.timestamp)}</span>
-                </div>
-            `;
-            document.body.appendChild(div);
+          const profilePic = await getProfilePicture(video.username);
+          const div = document.createElement("div");
+          div.classList.add("box");
+          div.innerHTML = `
+            <img src="thumbnail.png" alt="Thumbnail" class="thumbnail">
+            <strong style="display: block; text-align: left; margin-top: 5px;">${video.title}</strong>
+            <div style="text-align: left; margin-top: 5px;">
+              Views: ${abbreviateViews(video.views)}
+            </div>
+            <div style="display: flex; align-items: center; margin-top: 5px;">
+              <a href="channel.html?user=${video.username}" style="display: flex; align-items: center; text-decoration: none;">
+                <img src="${profilePic}" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;">
+                <span class="username" style="text-align: left; color: grey;">${video.username} • ${timeAgo(video.timestamp)}</span>
+              </a>
+            </div>
+          `;
+          videosContainer.appendChild(div);
         }
-
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching data:", error);
+      }
     }
-}
+    window.onload = () => {
+      checkLogin();
+      fetchData();
+    };
 
-    fetchData();
-</script>
+    /* --- Dropdown Toggle Logic --- */
+    const profileContainer = document.getElementById("profileContainer");
+    const profileDropdown = document.getElementById("profileDropdown");
+
+    profileContainer.addEventListener("click", function(event) {
+      event.stopPropagation();
+      profileDropdown.style.display = profileDropdown.style.display === "block" ? "none" : "block";
+    });
+    document.addEventListener("click", function(event) {
+      if (!profileContainer.contains(event.target)) {
+        profileDropdown.style.display = "none";
+      }
+    });
+
+    // Toggle between light and dark themes
+    function toggleTheme() {
+      const body = document.body;
+      const themeText = document.getElementById("themeText");
+      if(body.classList.contains("light-mode")){
+        body.classList.remove("light-mode");
+        themeText.textContent = "Switch Themes (Current: Dark Mode)";
+      } else {
+        body.classList.add("light-mode");
+        themeText.textContent = "Switch Themes (Current: Light Mode)";
+      }
+      profileDropdown.style.display = "none";
+    }
+
+    window.openSignInModal = openSignInModal;
+    window.closeSignInModal = closeSignInModal;
+    window.createConnection = createConnection;
+    window.openActiveAccountsModal = openActiveAccountsModal;
+    window.closeActiveAccountsModal = closeActiveAccountsModal;
+    window.verifyStudioAccount = verifyStudioAccount;
+    window.logout = logout;
+    window.toggleTheme = toggleTheme;
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar.style.left === '0px') {
+        sidebar.style.left = '-250px';
+        sidebar.style.pointerEvents = 'none';
+      } else {
+        sidebar.style.left = '0px';
+        sidebar.style.pointerEvents = 'auto';
+      }
+    };
+  </script>
 </body>
 </html>
