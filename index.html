@@ -507,7 +507,7 @@
         if (enteredCode === storedCode) {
           await set(ref(dbSubscribers, `youtubeconnections/${channel}/isConnected`), true);
           localStorage.setItem("loggedInChannel", channel);
-          alert("Connection verified. You are now signed in!");
+          alert("Verified. Welcome!");
           closeActiveAccountsModal();
           checkConnection(channel);
         } else {
