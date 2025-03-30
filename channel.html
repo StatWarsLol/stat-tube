@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Channel Page</title>
+  <style>
+    body {
+      font-family: Roboto, sans-serif;
+      background-color: #000;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    .channel-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .channel-header img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+    .channel-info h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .channel-stats {
+      color: grey;
+      font-size: 14px;
+    }
+    .video-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .video-box {
+      width: 250px;
+      background-color: #22212A;
+      padding: 10px;
+      border: 1px solid #111;
+      border-radius: 4px;
+    }
+    .video-box img {
+      width: 100%;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="channel-header">
+    <img id="channelProfilePic" src="default-pfp.jfif" alt="Loading...">
+    <div class="channel-info">
+      <h1 id="channelName">Loading.../h1>
+      <div class="channel-stats">
+        <span id="subscriberCount">Loading...</span> • 
+        <span id="videoCount">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="video-grid" id="videoGrid">
+    <!-- Creator's videos will appear here -->
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    // Firebase configs (you might reuse the same ones or separate for channels)
+    const firebaseConfigUploads = {
+        apiKey: "AIzaSyBQrXEOp6aNnKyaYYg3lN6HbUVKRpiSWvM",
+        authDomain: "uploads-stattube.firebaseapp.com",
+        databaseURL: "https://uploads-stattube-default-rtdb.firebaseio.com",
+        projectId: "uploads-stattube",
+        storageBucket: "uploads-stattube.firebasestorage.app",
+        messagingSenderId: "1058748358531",
+        appId: "1:1058748358531:web:606276b828d8eb9e2860b6",
+        measurementId: "G-ES4R12P4D4"
+    };
+
+    const firebaseConfigSubscribers = {
+      apiKey: "AIzaSyBKRIZDQ94sxPZ3da2D9Ucfoxv4q2ZZF5c",
+      authDomain: "are-you-kidding-me.firebaseapp.com",
+      databaseURL: "https://are-you-kidding-me-default-rtdb.firebaseio.com",
+      projectId: "are-you-kidding-me",
+      storageBucket: "are-you-kidding-me.firebasestorage.app",
+      messagingSenderId: "667397289088",
+      appId: "1:667397289088:web:183293a42669f3b28d2265",
+      measurementId: "G-04QEYGW21K"
+    };
+
+    const appUploads = initializeApp(firebaseConfigUploads, "uploads");
+    const appSubscribers = initializeApp(firebaseConfigSubscribers, "subscribers");
+    const dbUploads = getDatabase(appUploads);
+    const dbSubscribers = getDatabase(appSubscribers);
+
+    // Helper function to get query parameters
+    function getQueryParam(param) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(param);
+    }
+
+    // Get the username from query string
+    const username = getQueryParam("user");
+
+    // Set channel name (you could add more user info if available)
+    document.getElementById("channelName").textContent = username || "Unknown Channel";
+
+    // Fetch and display the channel's profile picture and subscriber count
+    async function loadChannelInfo() {
+      try {
+        // Profile picture
+        const profileSnapshot = await get(ref(dbSubscribers, `subscribers/${username}/profilePicture`));
+        if (profileSnapshot.exists()) {
+          const profilePicUrl = decodeURIComponent(profileSnapshot.val());
+          document.getElementById("channelProfilePic").src = profilePicUrl;
+        }
+
+        // Subscriber count (assuming stored under subscribers/{username}/subscriberCount)
+        const subsSnapshot = await get(ref(dbSubscribers, `subscribers/${username}/subscriberCount`));
+        let subscriberCount = subsSnapshot.exists() ? subsSnapshot.val() : 0;
+        document.getElementById("subscriberCount").textContent = subscriberCount + " subscribers";
+      } catch (error) {
+        console.error("Error loading channel info:", error);
+      }
+    }
+
+    // Load channel videos
+    async function loadChannelVideos() {
+      try {
+        const snapshot = await get(ref(dbUploads, `uploads/${username}`));
+        const videoGrid = document.getElementById("videoGrid");
+        videoGrid.innerHTML = "";
+        let videoCount = 0;
+        if (snapshot.exists()) {
+          snapshot.forEach(videoSnapshot => {
+            const videoTitle = videoSnapshot.key;
+            const videoData = videoSnapshot.val();
+
+            // Create a box for each video
+            const videoBox = document.createElement("div");
+            videoBox.classList.add("video-box");
+            videoBox.innerHTML = `
+              <img src="thumbnail.png" alt="Thumbnail">
+              <strong style="display: block; margin-top: 5px;">${videoTitle}</strong>
+              <div style="color: grey; font-size: 13px; margin-top: 3px;">Views: ${videoData.views || 0}</div>
+            `;
+            videoGrid.appendChild(videoBox);
+            videoCount++;
+          });
+        }
+        // Update video count in channel header
+        document.getElementById("videoCount").textContent = videoCount + " videos";
+      } catch (error) {
+        console.error("Error loading channel videos:", error);
+      }
+    }
+
+    // Initialize the channel page
+    loadChannelInfo();
+    loadChannelVideos();
+  </script>
+</body>
+</html>
