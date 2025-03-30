@@ -51,9 +51,9 @@
 </head>
 <body>
   <div class="channel-header">
-    <img id="channelProfilePic" src="default-pfp.jfif" alt="Loading...">
+    <img id="channelProfilePic" src="default-pfp.jfif" alt="Channel Profile Picture">
     <div class="channel-info">
-      <h1 id="channelName">Loading.../h1>
+      <h1 id="channelName">Loading...</h1>
       <div class="channel-stats">
         <span id="subscriberCount">0 subscribers</span> • 
         <span id="videoCount">0 videos</span>
@@ -67,9 +67,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    // Firebase configs (you might reuse the same ones or separate for channels)
+    // Firebase configs
     const firebaseConfigUploads = {
         apiKey: "AIzaSyBQrXEOp6aNnKyaYYg3lN6HbUVKRpiSWvM",
         authDomain: "uploads-stattube.firebaseapp.com",
@@ -97,19 +97,22 @@
     const dbUploads = getDatabase(appUploads);
     const dbSubscribers = getDatabase(appSubscribers);
 
-    // Helper function to get query parameters
+    // Helper to get query parameters
     function getQueryParam(param) {
       const params = new URLSearchParams(window.location.search);
       return params.get(param);
     }
 
-    // Get the username from query string
+    // Get username from query string
     const username = getQueryParam("user");
 
-    // Set channel name (you could add more user info if available)
-    document.getElementById("channelName").textContent = username || "Unknown Channel";
+    // Set channel name
+    const channelNameEl = document.getElementById("channelName");
+    if (channelNameEl) {
+      channelNameEl.textContent = username || "Unknown Channel";
+    }
 
-    // Fetch and display the channel's profile picture and subscriber count
+    // Load channel info (profile picture and subscriber count)
     async function loadChannelInfo() {
       try {
         // Profile picture
@@ -119,10 +122,13 @@
           document.getElementById("channelProfilePic").src = profilePicUrl;
         }
 
-        // Subscriber count (assuming stored under subscribers/{username}/subscriberCount)
+        // Subscriber count
         const subsSnapshot = await get(ref(dbSubscribers, `subscribers/${username}/subscriberCount`));
         let subscriberCount = subsSnapshot.exists() ? subsSnapshot.val() : 0;
-        document.getElementById("subscriberCount").textContent = subscriberCount + " subscribers";
+        const subscriberEl = document.getElementById("subscriberCount");
+        if (subscriberEl) {
+          subscriberEl.textContent = subscriberCount + " subscribers";
+        }
       } catch (error) {
         console.error("Error loading channel info:", error);
       }
@@ -140,7 +146,7 @@
             const videoTitle = videoSnapshot.key;
             const videoData = videoSnapshot.val();
 
-            // Create a box for each video
+            // Create video box
             const videoBox = document.createElement("div");
             videoBox.classList.add("video-box");
             videoBox.innerHTML = `
@@ -152,14 +158,16 @@
             videoCount++;
           });
         }
-        // Update video count in channel header
-        document.getElementById("videoCount").textContent = videoCount + " videos";
+        const videoCountEl = document.getElementById("videoCount");
+        if (videoCountEl) {
+          videoCountEl.textContent = videoCount + " videos";
+        }
       } catch (error) {
         console.error("Error loading channel videos:", error);
       }
     }
 
-    // Initialize the channel page
+    // Initialize channel page
     loadChannelInfo();
     loadChannelVideos();
   </script>
