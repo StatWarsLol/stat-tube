@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Top 100 Channels</title>
+
+  <!-- Odometer.js library -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/odometer@0.4.8/themes/odometer-theme-minimal.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/odometer@0.4.8/odometer.min.js"></script>
+
+  <style>
+    body {
+      font-family: Roboto, sans-serif;
+      background-color: #331457;
+      padding: 20px;
+      position: relative; /* For absolutely positioned elements */
+    }
+    #leaderboard {
+      display: grid;
+      grid-template-rows: repeat(10, 110px);
+      grid-template-columns: repeat(5, 460px);
+      grid-auto-flow: column;
+      gap: 5px;
+      padding: 20px;
+      background-color: #331457;
+      overflow: hidden;
+      position: relative;
+    }
+    .channel-item {
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 0px;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.5s ease, opacity 1s ease;
+      opacity: 0;
+      position: relative;
+    }
+    .channel-profile {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .channel-profile img {
+      width: 97px;
+      height: 97px;
+      border-radius: 5%;
+      margin-right: 10px;
+    }
+    .channel-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .channel-name {
+      font-size: 33px;
+      color: #312f3d;
+      max-width: 200px;
+      margin-top: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 0 0.75px black, 0 0 0.75px black, 0 0 0.75px black, 0 0 0.75px black;
+    }
+    .subscriber-count {
+      font-size: 47px;
+      color: #312f3d;
+      margin-bottom: 15px;
+      font-weight: 30px;
+    }
+    .rank-box {
+      position: relative;
+      width: 45px;
+      height: 90px;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #312f3d;
+      margin-right: 10px;
+    }
+    .rank-number {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 2px;
+      position: absolute;
+      z-index: 5;
+    }
+    .milestone-gif {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+    }
+    .update-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      font-weight: bold;
+      color: white;
+      padding: 20px 40px;
+      border-radius: 10px;
+      opacity: 1;
+      transition: opacity 1s ease-in-out;
+      z-index: 1000;
+      text-align: center;
+    }
+    /* Container for arrow + difference text */
+    .gap-container {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      background-color: transparent; 
+      pointer-events: none; 
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      font-weight: bold;
+      color: #2AA267; /* Text color */
+      z-index: 2000;
+      text-shadow: 
+        -2px -2px 0 white,  
+         2px -2px 0 white,
+        -2px  2px 0 white,
+         2px  2px 0 white;
+    }
+    /* Arrow styling */
+    .gap-arrow {
+      width: 55px;
+      height: 55px;
+    }
+    /* Shake animation */
+    @keyframes shake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(-1px, -1px) rotate(0deg); }
+      40% { transform: translate(1px, 1px) rotate(0deg); }
+      60% { transform: translate(-1px, 1px) rotate(0deg); }
+      80% { transform: translate(1px, -1px) rotate(0deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .gap-arrow.shake {
+      animation: shake 0.5s infinite alternate ease-in-out;
+    }
+    @keyframes blinkGreen {
+  0% { background-color: #ffffff; }
+  50% { background-color: #81F5D5; }
+  100% { background-color: #ffffff; }
+}
+
+.blinking {
+  animation: blinkGreen 1s infinite;
+}
+  </style>
+</head>
+<body>
+  <h1>Top 100 Channels</h1>
+  <div id="leaderboard"></div>
+  <div id="update-message" class="update-message">We are checking for changed information.</div>
+
+<script src="https://www.google.com/recaptcha/api.js?render=6Le7bi0rAAAAABH5Jt7dbggavrP95B0wkstdh_-c"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js"></script>
+<script>
+  // 1) Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBKRIZDQ94sxP3da2D9Ucfoxv4q2ZZF5c",
+    authDomain: "are-you-kidding-me.firebaseapp.com",
+    databaseURL: "https://are-you-kidding-me-default-rtdb.firebaseio.com",
+    projectId: "are-you-kidding-me",
+    storageBucket: "are-you-kidding-me.firebasestorage.app",
+    messagingSenderId: "667397289088",
+    appId: "1:667397289088:web:183293a42669f3b28d2265",
+    measurementId: "G-04QEYGW21K"
+  };
+  
+  // 2) Init Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // 3) Activate App Check (reCAPTCHA v3)
+  firebase.appCheck().activate(
+    '6Le7bi0rAAAAAPwovdvhAvKzEZOkcqFsYalpFmyf',  // your reCAPTCHA site key
+    true                                         // auto‑refresh token
+  );
+
+  // 4) Now you can get your database reference
+  const db = firebase.database();
+
+  // 5) Helper to format numbers with commas
+  function formatNumberWithCommas(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+    function fetchTopChannels() {
+      const leaderboard = document.getElementById('leaderboard');
+      const updateMessage = document.getElementById('update-message');
+      const usersRef = db.ref('subscribers');  
+
+      usersRef.orderByChild('subscriberCount').once('value', snapshot => {
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          const sortedChannels = Object.keys(users)
+            .map(userId => ({
+              name: userId,
+              subscriberCount: users[userId].subscriberCount,
+              profilePicture: decodeURIComponent(users[userId].profilePicture),
+              prevSubscriberCount: users[userId].subscriberCount
+            }))
+            .sort((a, b) => b.subscriberCount - a.subscriberCount)
+            .slice(0, 50);
+
+          leaderboard.innerHTML = ''; // Clear previous leaderboard
+          // Remove any existing gap containers
+          document.querySelectorAll('.gap-container').forEach(el => el.remove());
+
+          let fadeInDelay = 0;
+
+          sortedChannels.forEach((channel, index) => {
+            const channelElement = document.createElement('div');
+            channelElement.classList.add('channel-item');
+            // Store the raw subscriber count in a data attribute for later use
+            channelElement.dataset.subscriberCount = channel.subscriberCount;
+            channelElement.innerHTML = `
+              <div class="rank-box">
+                <div class="rank-number">${(index + 1).toString().padStart(2, '0')}</div>
+              </div>
+              <div class="channel-profile">
+                <img src="${channel.profilePicture}" alt="${channel.name}" />
+                <div class="channel-info">
+                  <span class="channel-name">${channel.name}</span>
+                  <span class="subscriber-count">${formatNumberWithCommas(channel.subscriberCount)}</span>
+                </div>
+              </div>
+            `;
+            leaderboard.appendChild(channelElement);
+
+            // If this channel is within 150 subscribers of the one above it, add the blinking class
+            if (index > 0) {
+              const previousCount = sortedChannels[index - 1].subscriberCount;
+              if (previousCount - channel.subscriberCount <= 100) {
+                channelElement.classList.add('blinking');
+              }
+            }
+
+            setTimeout(() => {
+              channelElement.style.opacity = 1;
+            }, fadeInDelay);
+            fadeInDelay += 80;
+
+            // Attach Odometer to animate subscriber count changes
+            const odometer = new Odometer({
+              el: channelElement.querySelector('.subscriber-count'),
+              value: channel.subscriberCount,
+              format: '(,ddd)',
+              theme: 'minimal'
+            });
+
+            // Periodic updates for each channel
+            setTimeout(() => {
+              setInterval(() => {
+                updateChannelData(channelElement, channel, odometer);
+              }, Math.floor(Math.random() * 10 + 1) * 1000);
+            }, fadeInDelay + 1000);
+          });
+
+          // After rendering, insert gap icons (using data attributes for reliable counts)
+          setTimeout(insertGapIcons, fadeInDelay + 1500);
+
+          setTimeout(() => {
+            updateMessage.style.opacity = "0";
+            setTimeout(() => updateMessage.remove(), 1000);
+          }, fadeInDelay + 500);
+        } else {
+          leaderboard.innerHTML = '<p>No channels found</p>';
+        }
+      });
+    }
+
+    setInterval(fetchTopChannels, 180000);
+    window.onload = fetchTopChannels;
+
+    const channelHistory = {};
+
+    function updateChannelData(channelElement, channel, odometer) {
+      const usersRef = db.ref('subscribers/' + channel.name);
+      const now = Date.now();
+
+      usersRef.once('value', snapshot => {
+        if (snapshot.exists()) {
+          const channelData = snapshot.val();
+          const newSubscriberCount = channelData.subscriberCount;
+          const subscriberCountElement = channelElement.querySelector('.subscriber-count');
+          const rankBox = channelElement.querySelector('.rank-box');
+
+          // Update the stored subscriber count in the data attribute
+          channelElement.dataset.subscriberCount = newSubscriberCount;
+
+          if (!channelHistory[channel.name]) {
+            channelHistory[channel.name] = [];
+          }
+          channelHistory[channel.name].push({ time: now, count: newSubscriberCount });
+          channelHistory[channel.name] = channelHistory[channel.name].filter(entry => now - entry.time <= 60000);
+
+          const pastCount = channelHistory[channel.name][0]?.count || newSubscriberCount;
+          const gain = newSubscriberCount - pastCount;
+
+          // Change text color based on gain/loss
+          if (channel.prevSubscriberCount !== undefined) {
+            if (newSubscriberCount > channel.prevSubscriberCount) {
+              subscriberCountElement.style.color = 'green';
+            } else if (newSubscriberCount < channel.prevSubscriberCount) {
+              subscriberCountElement.style.color = 'red';
+            }
+            setTimeout(() => {
+              subscriberCountElement.style.color = '#312F3D';
+            }, 1000);
+          }
+
+          odometer.update(newSubscriberCount);
+
+          if (gain > 0) {
+            channelElement.style.backgroundColor = '#D1DDF1';
+            setTimeout(() => {
+              channelElement.style.backgroundColor =
+                channelElement.dataset.isRed === "true" ? '#FEE2DE' : '#F5F2F5';
+            }, 500);
+          }
+
+          // Milestone logic (unchanged)
+          const gifData = [
+            { src: 'yellowbar.png', color: '#343434', isFire: true, threshold: 100 },
+            { src: 'redbar.png', color: '#343434', isFire: true, threshold: 125 },
+            { src: 'red_light_fire.gif', color: 'white', isFire: true, threshold: 200 },
+            { src: 'red_dark_fire.gif', color: 'white', isFire: false, threshold: 400 },
+            { src: 'yellowfire.gif', color: 'white', isFire: true, threshold: 800 },
+            { src: 'redextremefire.gif', color: 'white', isFire: false, threshold: 1000 },
+            { src: 'greenfire.gif', color: 'white', isFire: true, threshold: 1200 },
+            { src: 'blue_fire.gif', color: 'white', isFire: true, threshold: 1400 },
+            { src: 'purple_fire.gif', color: 'white', isFire: true, threshold: 1600 },
+            { src: 'rainbow_fire.gif', color: 'white', isFire: true, threshold: 3200 },
+            { src: 'ringfire.gif', color: 'white', isFire: true, threshold: 6400 },
+          ];
+
+          if (gain < 100) {
+            let gifElement = rankBox.querySelector('.milestone-gif');
+            if (gifElement) gifElement.remove();
+            rankBox.style.color = '#312F3D';
+            channel.prevSubscriberCount = newSubscriberCount;
+            return;
+          }
+
+          let selectedGif = gifData[0];
+          for (const gif of gifData) {
+            if (gain >= gif.threshold) selectedGif = gif;
+          }
+
+          let gifElement = rankBox.querySelector('.milestone-gif');
+          if (!gifElement) {
+            gifElement = document.createElement('img');
+            gifElement.classList.add('milestone-gif');
+            rankBox.appendChild(gifElement);
+          }
+          if (gifElement.src !== selectedGif.src) {
+            gifElement.src = selectedGif.src;
+            gifElement.alt = 'Milestone GIF';
+            rankBox.style.color = selectedGif.color;
+          }
+          rankBox.style.marginBottom = selectedGif.isFire ? '0px' : '0px';
+          channel.prevSubscriberCount = newSubscriberCount;
+        }
+      });
+    }
+
+    function insertGapIcons() {
+      const leaderboard = document.getElementById('leaderboard');
+      if (!leaderboard) return;
+
+      // Remove any existing gap containers or battle lines
+      document.querySelectorAll('.gap-container, .battle-line').forEach(el => el.remove());
+
+      const channelItems = document.querySelectorAll('.channel-item');
+      if (!channelItems || channelItems.length < 2) return;
+
+      for (let i = 0; i < channelItems.length - 1; i++) {
+        const currentElem = channelItems[i];
+        const nextElem = channelItems[i + 1];
+
+        const currentCount = parseInt(currentElem.dataset.subscriberCount, 10);
+        const nextCount = parseInt(nextElem.dataset.subscriberCount, 10);
+        if (isNaN(currentCount) || isNaN(nextCount)) continue;
+
+        let diff = Math.abs(currentCount - nextCount);
+        if (diff >= 2500) continue;
+
+        let diffText = diff < 1000 ? diff.toString() : (diff / 1000).toFixed(2) + 'K';
+
+        // Determine base arrow image and class
+        let arrowSrc = nextCount > currentCount ? 'red_arrow_up.png' : 'lightning.png';
+        let arrowClass = arrowSrc === 'lightning.png' ? 'shake' : '';
+        let textColor = ''; // default text color
+
+        // If gap is under 500, change the arrow and text color
+        if (diff < 500) {
+          arrowSrc = 'lightningred.png';
+          textColor = 'red';
+        }
+
+        const currentImg = currentElem.querySelector('.channel-profile img');
+        const nextImg = nextElem.querySelector('.channel-profile img');
+        if (!currentImg || !nextImg) continue;
+
+        const rect1 = currentImg.getBoundingClientRect();
+        const rect2 = nextImg.getBoundingClientRect();
+        const leaderboardRect = leaderboard.getBoundingClientRect();
+
+        const isNewRow = Math.abs(rect1.top - rect2.top) > 10;
+        let offsetX, offsetY, lineWidth;
+
+        if (isNewRow) {
+          offsetX = (rect2.left + rect2.right) / 2 - leaderboardRect.left;
+          offsetY = rect2.top - leaderboardRect.top - 7;
+          lineWidth = rect2.width; // Use one grid space width
+        } else {
+          offsetX = (rect1.right + rect2.left) / 2 - leaderboardRect.left;
+          offsetY = (rect1.top + rect1.bottom) / 2 - leaderboardRect.top;
+          lineWidth = Math.abs(rect2.left - rect1.right); // Set line width to fit between profiles
+        }
+
+        // Create the gap container
+        const gapContainer = document.createElement('div');
+        gapContainer.className = 'gap-container';
+        gapContainer.style.position = 'absolute';
+        gapContainer.style.transform = 'translate(-10%, -50%)';
+        gapContainer.style.left = `${offsetX}px`;
+        gapContainer.style.top = `${offsetY}px`;
+        gapContainer.style.display = 'flex';
+        gapContainer.style.alignItems = 'center';
+
+        gapContainer.innerHTML = `
+          <img class="gap-arrow ${arrowClass}" src="${arrowSrc}" alt="gap">
+          <span class="gap-text" style="margin-left: 150px; color: ${textColor};">${diffText}</span>
+        `;
+
+        leaderboard.appendChild(gapContainer);
+
+        // Function to update the gap number (and appearance) every 5 seconds
+        const updateGap = () => {
+          const currentCountUpdated = parseInt(currentElem.dataset.subscriberCount, 10);
+          const nextCountUpdated = parseInt(nextElem.dataset.subscriberCount, 10);
+          const newDiff = Math.abs(currentCountUpdated - nextCountUpdated);
+          const updatedDiffText = newDiff < 1000 ? newDiff.toString() : (newDiff / 1000).toFixed(2) + 'K';
+          
+          const gapArrow = gapContainer.querySelector('.gap-arrow');
+          const gapTextElem = gapContainer.querySelector('.gap-text');
+
+          // If the gap is under 500, update to the special PNG and red text; otherwise revert to default
+          if (newDiff < 500) {
+            gapArrow.src = 'lightningred.png';
+            gapTextElem.style.color = 'red';
+          } else {
+            gapArrow.src = nextCountUpdated > currentCountUpdated ? 'lightningred.png' : 'lightning.png';
+            gapTextElem.style.color = '';
+          }
+          gapTextElem.textContent = updatedDiffText;
+        };
+
+        // Set interval to update the gap every 5 seconds
+        setInterval(updateGap, 5000);
+
+        // Create the first battle line (gray, same length as one grid space, centered)
+        const battleLine = document.createElement('div');
+        battleLine.className = 'battle-line';
+        battleLine.style.position = 'absolute';
+        battleLine.style.width = `120px`;
+        battleLine.style.height = '6px';
+        battleLine.style.backgroundColor = 'white';
+        battleLine.style.left = `${offsetX - lineWidth / 2}px`;
+        battleLine.style.top = `${offsetY - 5}px`;
+        leaderboard.appendChild(battleLine);
+
+        // Create the second battle line (to the left of the first one, green color)
+        const leftBattleLine = document.createElement('div');
+        leftBattleLine.className = 'battle-line';
+        leftBattleLine.style.position = 'absolute';
+        leftBattleLine.style.width = `70px`;
+        leftBattleLine.style.height = '6px';
+        leftBattleLine.style.backgroundColor = 'green';
+        leftBattleLine.style.left = `${offsetX - lineWidth - 21}px`;
+        leftBattleLine.style.top = `${offsetY - 5}px`;
+        leaderboard.appendChild(leftBattleLine);
+
+        // Create the third battle line (to the right of the first one, green color)
+        const rightBattleLine = document.createElement('div');
+        rightBattleLine.className = 'battle-line';
+        rightBattleLine.style.position = 'absolute';
+        rightBattleLine.style.width = `300px`;
+        rightBattleLine.style.height = '6px';
+        rightBattleLine.style.backgroundColor = '#D0CCCD';
+        rightBattleLine.style.left = `${offsetX + lineWidth - 50}px`;
+        rightBattleLine.style.top = `${offsetY - 5}px`;
+        leaderboard.appendChild(rightBattleLine);
+      }
+    }
+
+ // JavaScript to refresh the page every 10 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 650000);  // 10 seconds = 10000 milliseconds
+  </script>
+</body>
+</html>
